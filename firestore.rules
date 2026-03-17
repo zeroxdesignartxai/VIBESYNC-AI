@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: projects
+    // Document ID: auto-generated
+    // Fields:
+    //   - userId: string (required) - UID of the owner
+    //   - title: string (optional) - Project title
+    //   - audioUrl: string (required) - Path to audio file
+    //   - status: string (required) - Current pipeline status
+    //   - bpm: number (optional) - Beats per minute
+    //   - genre: string (optional) - Detected genre
+    //   - mood: string (optional) - Detected mood
+    //   - lyrics: list (optional) - Generated lyrics
+    //   - subtitles: list (optional) - Timed subtitle objects
+    //   - imageUrls: list (optional) - Generated image URLs
+    //   - sections: list (optional) - Timing sections
+    //   - createdAt: timestamp (required) - Creation time
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidProject(data) {
+      return data.userId is string &&
+             data.status in ['uploading', 'analyzing', 'generating_lyrics', 'generating_images', 'ready', 'error'] &&
+             data.audioUrl is string &&
+             data.audioUrl.size() < 1000;
+    }
+
+    match /projects/{projectId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && 
+                      isValidProject(request.resource.data) && 
+                      request.resource.data.userId == request.auth.uid;
+      allow update: if isOwner(resource.data.userId) && 
+                      isValidProject(request.resource.data) &&
+                      request.resource.data.userId == resource.data.userId;
+      allow delete: if isOwner(resource.data.userId);
+    }
+  }
+}

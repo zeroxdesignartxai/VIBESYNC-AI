@@ -1,0 +1,5 @@
+{
+  "name": "VibeSync AI",
+  "description": "AI-powered music video generator. Upload your track and get a fully synced lyric video with AI-generated visuals.",
+  "requestFramePermissions": []
+}

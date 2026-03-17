@@ -1,0 +1,42 @@
+{
+  "entities": {
+    "Project": {
+      "title": "Project",
+      "description": "A music video generation project",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "The UID of the user who created the project" },
+        "title": { "type": "string", "description": "The title of the project" },
+        "audioUrl": { "type": "string", "description": "URL to the uploaded audio file" },
+        "status": { "type": "string", "enum": ["uploading", "analyzing", "generating_lyrics", "generating_images", "ready", "error"], "description": "Current status of the project" },
+        "bpm": { "type": "number", "description": "Beats per minute of the track" },
+        "genre": { "type": "string", "description": "Detected genre" },
+        "mood": { "type": "string", "description": "Detected mood" },
+        "lyrics": { "type": "array", "items": { "type": "string" }, "description": "Generated lyrics" },
+        "subtitles": { 
+          "type": "array", 
+          "items": { 
+            "type": "object",
+            "properties": {
+              "start": { "type": "number" },
+              "end": { "type": "number" },
+              "text": { "type": "string" },
+              "section": { "type": "number" }
+            }
+          },
+          "description": "Timed subtitle data"
+        },
+        "imageUrls": { "type": "array", "items": { "type": "string" }, "description": "URLs of generated loop images" },
+        "sections": { "type": "array", "items": { "type": "object" }, "description": "Song section timing data" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "audioUrl", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/projects/{projectId}": {
+      "schema": "Project",
+      "description": "Collection of music video projects"
+    }
+  }
+}
